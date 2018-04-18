@@ -1,14 +1,22 @@
 # text-mining-mp3
 
-## Usage (Windows)
+## Data
 
-#### 0. 
+Data can be downloaded [here](http://www.cs.virginia.edu/~hw5x/Course/TextMining-2018Spring/_site/docs/codes/yelp.zip).
+
+## Assignment
+
+More information about the [dataset](http://www.cs.virginia.edu/~hw5x/Course/TextMining-2018Spring/_site/mps/mp1.html) and the [assignment](http://www.cs.virginia.edu/~hw5x/Course/TextMining-2018Spring/_site/mps/mp3.html#time)
+
+## Usage (Windows, Python3)
+
+#### 0. Pre-processing
 
 Pre-process all documents in ``[path_to_data_directory]`` and store results in ``[path_to_processed_data_file].json``.
 
 - Run: ``python preprocess.py [path_to_data_directory] [path_to_stopwords_file] [path_to_processed_data_file].json``
 
-#### 1. 
+#### 1. Feature extraction
 
 - Extract top features from preprocessed documents, ranked by chi-square value and information gain:
 
@@ -20,7 +28,7 @@ Pre-process all documents in ``[path_to_data_directory]`` and store results in `
 
   - Run: ``python task1.py [path_to_processed_data_file].json``
   
-#### 2. 
+#### 2. Naive Bayes classification
 
 Classify all documents as either positive (class==1) or negative (class==0) with a Naive Bayes linear classifier, using the features extracted in step 1 as the controlled vocabulary and additive smoothing for unseen words.
 
