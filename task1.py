@@ -16,9 +16,10 @@ def main():
 	data_path = os.path.abspath(sys.argv[1])
 	load_data(data_path)
 	count()
-	feature_selection()
+	extract_features()
+	# get_top_features(num_features)
 
-	print("Time: " + str(time.time() - start_time))
+	# print("Time: " + str(time.time() - start_time))
 
 def load_data(path):
 	data = open(path, 'r', encoding='utf-8')
@@ -39,51 +40,53 @@ def count():
 
 			for term in review["Vector"]:
 				check_dict(vocab, term)
-# vocab["amaz"] = the number of documents "amaz" appears in
 
 				if float(review["Overall"]) < 4.0:
-
-# c["amaz"] = the number of y=0 documents "amaz" appears in
 					check_dict(c, term)
 				else:
-# a["amaz"] = number of y=1 documents "amaz" appears in
 					check_dict(a, term)
 
-
-def feature_selection():
+def extract_features():
 	for i in range(len(m_restaurants)):
 		for review in m_restaurants[i]["Reviews"]:
 			for term in review["Vector"]:
 				chi_square(term)
 				IG(term)
 
-	# sort features
+def get_features():
+	# get words only
+	cs_sorted = [t for t in sorted(cs, key=cs.get, reverse=True)]
+	ig_sorted = [t for t in sorted(ig, key=ig.get, reverse=True)]
+	ig_sorted = ig_sorted[:5000]
+
+	# # check: no new words contributed by chi-square set?
+	# for a in cs_sorted:
+	# 	if a not in ig_sorted:
+	# 		print("Unique to Chi-Square: ", a)
+
+	# union of both sets of features
+	features = list(set(cs_sorted) | set(ig_sorted))
+
+	# export vocabulary list
+	for i in range(len(features)):
+		print(features[i])
+
+def get_top_features(num_features):
+	# get words and 
 	cs_sorted = [(t, cs[t]) for t in sorted(cs, key=cs.get, reverse=True)]
 	ig_sorted = [(t, ig[t]) for t in sorted(ig, key=ig.get, reverse=True)]
 	ig_sorted = ig_sorted[:5000]
 
-	print(cs_sorted)
+	print("Top features by chi-square:")
+	for i in range(num_features):
+		print(cs_sorted[i][0],cs_sorted[i][1])
 
 	print("")
-	print("")
-	
-	print(ig_sorted)
 
-	# # get words only
-	# cs_f = [x[0] for x in cs_sorted]
-	# ig_f = [x[0] for x in ig_sorted]
+	print("Top features by information gain:")
+	for i in range(num_features):
+		print(ig_sorted[i][0],ig_sorted[i][1])
 
-	# # no new words in chi-square
-	# for a in cs_f:
-	# 	if a not in ig_f:
-	# 		print("Unique to Chi-Square: ", a)
-
-	# # union of both sets of features
-	# features = list(set(cs_f) | set(ig_f))
-
-	# # export vocabulary list
-	# for i in range(len(features)):
-	# 	print(features[i])
 
 def chi_square(term):
 	bb = checkB(term)
@@ -127,20 +130,10 @@ def IG(term):
 	num_documents = num_positive + num_negative
 
 	g = - entropy(p("y=0","")) - entropy(p("y=1",""))
-	print("part 1", g)
-
-	d = p("t",term)*entropy(p("y=0|t",term))	
-	d += p("t",term)*entropy(p("y=1|t",term))
-
-	g+=d
-
-	print("part 2", d)
-	d = p("~t",term)*entropy(p("y=0|~t",term))
-	d += p("~t",term)*entropy(p("y=1|~t",term))
-
-	g+=d
-	print("part 3", d)
-
+	g += p("t",term)*entropy(p("y=0|t",term))	
+	g += p("t",term)*entropy(p("y=1|t",term))
+	g += p("~t",term)*entropy(p("y=0|~t",term))
+	g += p("~t",term)*entropy(p("y=1|~t",term))
 	ig[term] = g
 
 def entropy(prob):

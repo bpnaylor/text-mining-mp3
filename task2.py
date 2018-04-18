@@ -137,6 +137,10 @@ def plot_metrics(t,e):
 	precision, recall, _ = precision_recall_curve(t,e)
 	average_precision = average_precision_score(t,e)
 
+	print("Precision scores:", precision)
+	print("Recall scores:", recall)
+	print("Average precision:", average_precision)
+
 	plt.step(recall, precision, color="b", alpha=0.01, where="post")
 	plt.fill_between(recall, precision, step="post", alpha=0.01, color="b")
 	plt.xlabel("Recall")

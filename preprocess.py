@@ -22,6 +22,7 @@ def main():
 	all_files = []
 	data_path = os.path.abspath(sys.argv[1])
 	stopwords_path = os.path.abspath(sys.argv[2])
+	output_path = os.path.abspath(sys.argv[3])
 
 	load_stopwords(stopwords_path)
 	file_names = load_directory(data_path)
@@ -34,7 +35,7 @@ def main():
 		for review in restaurant["Reviews"]:
 			smooth(review)
 
-	with open('train.txt','w',encoding="utf-8") as outfile:
+	with open(output_path,'w',encoding="utf-8") as outfile:
 		json.dump(m_restaurants, outfile, ensure_ascii=False)
 
 	# with open('vocab.txt', 'w', encoding="utf-8") as vocabfile:
