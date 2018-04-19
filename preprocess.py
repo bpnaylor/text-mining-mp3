@@ -23,23 +23,38 @@ def main():
 	data_path = os.path.abspath(sys.argv[1])
 	stopwords_path = os.path.abspath(sys.argv[2])
 	output_path = os.path.abspath(sys.argv[3])
+	controlled_dict_path = os.path.abspath(sys.argv[4])
+	# query_path = os.path.abspath(sys.argv[5])
+	# output_query_path = os.path.abspath(sys.argv[6])
 
 	load_stopwords(stopwords_path)
 	file_names = load_directory(data_path)
 	load_restaurants(file_names)
+	load_controlled_dict(controlled_dict_path)
+	# load_query(query_path)
+
+	print("Loaded all files")
 
 	for restaurant in m_restaurants:
 		preprocess_reviews(restaurant)
 
+	# preprocess_reviews(m_query)
+
 	for restaurant in m_restaurants:
 		for review in restaurant["Reviews"]:
+			print("Smoothing and revectorizing review ", review["ReviewID"])
 			smooth(review)
+			revectorize(review)
+
+	# for review in m_query["Reviews"]:
+	# 	smooth(review)
+	# 	revectorize(review)
 
 	with open(output_path,'w',encoding="utf-8") as outfile:
 		json.dump(m_restaurants, outfile, ensure_ascii=False)
 
-	# with open('vocab.txt', 'w', encoding="utf-8") as vocabfile:
-	# 	json.dump(m_vocab, vocabfile, ensure_ascii=False)
+	# with open(output_query_path, 'w', encoding="utf-8") as outfile:
+	# 	json.dump(m_query, outfile, ensure_ascii=False)
 
 	print("Time: " + str(time.time() - start_time))
 
@@ -69,7 +84,24 @@ def load_restaurants(files):
 		m_restaurants.append(restaurant)
 		file.close()
 
+def load_controlled_dict(path):
+	global controlled_dict
+	file = open(path, "r", encoding="utf-8")
+	cd = file.read().split("\n")
+
+	for word in cd:
+		controlled_dict[word] = 0
+
+	file.close()
+
+def load_query(path):
+	file = open(path,'r',encoding='utf-8')
+	global m_query
+	m_query = json.load(file)
+	file.close()
+
 def preprocess_reviews(restaurant):
+	print("Preprocessing restaurant",restaurant["RestaurantInfo"]["Name"])
 	global m_numreviews
 
 	for review in restaurant["Reviews"]:
@@ -88,7 +120,17 @@ def preprocess_reviews(restaurant):
 
 		review["Content"] = temp
 		review["Vector"] = vocab
+
 		m_numreviews += 1
+
+def revectorize(review):
+	temp = {}
+	
+	for t in controlled_dict:
+		if t in review["Vector"]:
+			temp[t] = review["Vector"][t]
+
+	review["Vector"] = temp
 
 def check_dict(dictionary, key):
 	if key in dictionary:
@@ -121,5 +163,6 @@ m_stopwords = {}
 m_vocab = {}
 global m_numreviews
 m_numreviews = 0
+controlled_dict = {}
 
 main()

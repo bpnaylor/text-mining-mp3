@@ -1,4 +1,4 @@
-all 
-output.txt 
-outputs 
-yelp 
+raw
+processed
+results
+yelp
